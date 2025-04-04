@@ -31,6 +31,8 @@ class TaskRunner(Thread):
         while True:
             # TODO
             # Get pending job
+            self.threadpool.running_tasks.get()
+
             # Execute the job and save the result to disk
             # Repeat until graceful_shutdown
             pass
