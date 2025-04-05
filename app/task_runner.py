@@ -40,7 +40,7 @@ class TaskRunner(Thread):
 
     def run(self):
         while True:
-            self.current_task = self.threadpool.running_tasks.get_task()
+            self.current_task = self.threadpool.get_task()
             # Execute the job and save the result to disk
             result = self.current_task.run()
             self.write_file(result)
