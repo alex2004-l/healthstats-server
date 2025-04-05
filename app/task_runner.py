@@ -1,7 +1,9 @@
 from queue import Queue
 from threading import Thread, Event
+from app.task import TaskInterface
 import time
 import os
+import json
 
 class ThreadPool:
     def __init__(self):
@@ -12,27 +14,42 @@ class ThreadPool:
         self.total_tasks = {}
 
         # TODO : add an event for graceful shutdown
+        self.shutdown = Event()
     
     def start(self):
         for thread in self.threads:
             thread.start()
         
-    def submit(self):
-        pass
+    def submit_task(self, task : TaskInterface):
+        self.running_tasks.put(task)
+        self.total_tasks[task.id] = "running"
+
+    def get_task(self) -> TaskInterface:
+        self.running_tasks.get()
+    
+    def complete_task(self, id : int):
+        self.total_tasks[id] = "done"
+        self.running_tasks.task_done()
 
 
 class TaskRunner(Thread):
     def __init__(self, threadpool : ThreadPool):
-        # TODO: init necessary data structures
         super().__init__()
         self.threadpool = threadpool
+        self.current_task = None
 
     def run(self):
         while True:
-            # TODO
-            # Get pending job
-            self.threadpool.running_tasks.get()
-
+            self.current_task = self.threadpool.running_tasks.get_task()
             # Execute the job and save the result to disk
-            # Repeat until graceful_shutdown
-            pass
+            result = self.current_task.run()
+            self.write_file(result)
+            self.threadpool.complete_task(self.current_task.id)
+    
+    def write_file(self, result):
+        file_path = os.path.join("results", f"job_id_{self.current_task.id}.json")
+
+        with open(file_path, "w") as f:
+            json.dump(result, f)
+
+

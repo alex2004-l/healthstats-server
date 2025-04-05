@@ -1,55 +1,51 @@
 from app import webserver
 from flask import request, jsonify
+from app.task import TaskFactory
 
 import os
 import json
 
-# Example endpoint definition
-@webserver.route('/api/post_endpoint', methods=['POST'])
-def post_endpoint():
-    if request.method == 'POST':
-        # Assuming the request contains JSON data
-        data = request.json
-        print(f"got data in post {data}")
-
-        # Process the received data
-        # For demonstration purposes, just echoing back the received data
-        response = {"message": "Received data successfully", "data": data}
-
-        # Sending back a JSON response
-        return jsonify(response)
-    else:
-        # Method Not Allowed
-        return jsonify({"error": "Method not allowed"}), 405
-
 @webserver.route('/api/get_results/<job_id>', methods=['GET'])
 def get_response(job_id):
-    print(f"JobID is {job_id}")
-    # TODO
-    # Check if job_id is valid
+    if request.method == 'GET':
+        print(f"JobID is {job_id}")
+        # Check if job_id is valid
+        id_num = int(job_id.replace("job_id", ""))
+        if not job_id.startswith("job_id") or id_num > webserver.job_counter:
+            return jsonify({"status": "error", "reason" : "Invalid job_id"})
 
-    # Check if job_id is done and return the result
-    #    res = res_for(job_id)
-    #    return jsonify({
-    #        'status': 'done',
-    #        'data': res
-    #    })
 
-    # If not, return running status
-    return jsonify({'status': 'NotImplemented'})
+        if webserver.task_runner.get_task_status(id_num) == "done":
+            #retrieve the data from the file and return it
+            result = None
+            return jsonify({"status": "done", "data" : result})
+
+        return jsonify({"status": "running"})
+    else:
+        return jsonify({"error": "Method not allowed"}), 405
+
 
 @webserver.route('/api/states_mean', methods=['POST'])
 def states_mean_request():
-    # Get request data
-    data = request.json
-    print(f"Got request {data}")
+    if request.method == 'POST':
+        # Get request data
+        data = request.json
+        print(f"Got request {data}")
 
-    # TODO
-    # Register job. Don't wait for task to finish
-    # Increment job_id counter
-    # Return associated job_id
+        # to add check for data validity
 
-    return jsonify({"status": "NotImplemented"})
+        with webserver.job_lock:
+            job_id = webserver.job_counter
+            webserver.job_counte += 1
+        
+        new_task = TaskFactory("states_mean", job_id, data['question'])
+        webserver.task_runner.submit_task(new_task)
+
+        # Return associated 
+        return jsonify({"job_id": job_id})
+    else:
+        return jsonify({"error": "Method not allowed"}), 405
+
 
 @webserver.route('/api/state_mean', methods=['POST'])
 def state_mean_request():
