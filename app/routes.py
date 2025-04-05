@@ -38,7 +38,7 @@ def states_mean_request():
             job_id = webserver.job_counter
             webserver.job_counte += 1
         
-        new_task = TaskFactory("states_mean", job_id, data['question'])
+        new_task = TaskFactory("states_mean", job_id, data['question'], webserver.data_ingestor)
         webserver.task_runner.submit_task(new_task)
 
         # Return associated 

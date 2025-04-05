@@ -2,7 +2,8 @@ import json
 import pandas as pd
 
 class DataIngestor:
-    COLUMNS = ["Question", "LocationDesc", "Data_Value", "Stratification1", "StratificationCategory1"]
+    QUESTION = "Question"
+    COLUMNS = [QUESTION, "LocationDesc", "Data_Value", "Stratification1", "StratificationCategory1"]
 
     def __init__(self, csv_path: str):
         self.database_df = pd.read_csv(csv_path, usecols=self.COLUMNS)
@@ -21,3 +22,6 @@ class DataIngestor:
             'Percent of adults who achieve at least 300 minutes a week of moderate-intensity aerobic physical activity or 150 minutes a week of vigorous-intensity aerobic activity (or an equivalent combination)',
             'Percent of adults who engage in muscle-strengthening activities on 2 or more days a week',
         ]
+    
+    def get_df_by_question(self, question : str) -> pd.DataFrame:
+        return self.database_df[self.database_df[self.QUESTION] == question]
