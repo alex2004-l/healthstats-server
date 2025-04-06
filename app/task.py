@@ -14,13 +14,12 @@ class TaskInterface(ABC):
     def func(self):
         pass
 
-
 class TaskStatesMean(TaskInterface):
+
     def func(self):
         df = self.data_ingestor.get_df_by_question(self.question)
-        result = df.groupby("LocationDesc")["Data_Value"].mean().sort_index().to_dict()
+        result = df.groupby("LocationDesc")["Data_Value"].mean().to_dict()
         return result
-
 
 class TaskStateMean(TaskInterface):
     def func(self):
@@ -70,8 +69,8 @@ class TaskFactory:
     }
 
     @staticmethod
-    def create_task(task_type : str ,id : int, question : str, state : str = None) -> TaskInterface:
+    def create_task(task_type : str ,id : int, question : str, data_ingestor, state : str = None) -> TaskInterface:
         if task_type in TaskFactory._task_types:
-            return TaskFactory._task_types[type](id, question, state)
+            return TaskFactory._task_types[task_type](id, question, data_ingestor, state)
         else:
             raise Exception("Unknown task")

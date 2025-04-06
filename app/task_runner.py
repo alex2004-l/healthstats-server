@@ -4,6 +4,7 @@ from app.task import TaskInterface
 import time
 import os
 import json
+import traceback
 
 class ThreadPool:
     def __init__(self):
@@ -25,11 +26,14 @@ class ThreadPool:
         self.total_tasks[task.id] = "running"
 
     def get_task(self) -> TaskInterface:
-        self.running_tasks.get()
+        return self.running_tasks.get()
     
     def complete_task(self, id : int):
         self.total_tasks[id] = "done"
         self.running_tasks.task_done()
+    
+    def get_task_status(self, id : int) -> str:
+        return self.total_tasks[id]
 
 
 class TaskRunner(Thread):
@@ -40,15 +44,18 @@ class TaskRunner(Thread):
 
     def run(self):
         while True:
-            self.current_task = self.threadpool.get_task()
-            # Execute the job and save the result to disk
-            result = self.current_task.run()
-            self.write_file(result)
-            self.threadpool.complete_task(self.current_task.id)
+            try:
+                self.current_task = self.threadpool.get_task()
+                # Execute the job and save the result to disk
+                result = self.current_task.func()
+                self.write_file(result)
+                self.threadpool.complete_task(self.current_task.id)
+            except Exception as e:
+                traceback.print_exc()
+                pass
     
     def write_file(self, result):
         file_path = os.path.join("results", f"job_id_{self.current_task.id}.json")
-
         with open(file_path, "w") as f:
             json.dump(result, f)
 

@@ -10,14 +10,15 @@ def get_response(job_id):
     if request.method == 'GET':
         print(f"JobID is {job_id}")
         # Check if job_id is valid
-        id_num = int(job_id.replace("job_id", ""))
-        if not job_id.startswith("job_id") or id_num > webserver.job_counter:
+        id_num = int(job_id)
+        if id_num > webserver.job_counter:
             return jsonify({"status": "error", "reason" : "Invalid job_id"})
 
-
-        if webserver.task_runner.get_task_status(id_num) == "done":
+        if webserver.tasks_runner.get_task_status(id_num) == "done":
             #retrieve the data from the file and return it
-            result = None
+            file_path = os.path.join("results", f"job_id_{id_num}.json")
+            with open(file_path, "r") as f:
+                result = json.load(f)
             return jsonify({"status": "done", "data" : result})
 
         return jsonify({"status": "running"})
@@ -36,10 +37,10 @@ def states_mean_request():
 
         with webserver.job_lock:
             job_id = webserver.job_counter
-            webserver.job_counte += 1
+            webserver.job_counter += 1
         
-        new_task = TaskFactory("states_mean", job_id, data['question'], webserver.data_ingestor)
-        webserver.task_runner.submit_task(new_task)
+        new_task = TaskFactory.create_task("states_mean", job_id, data['question'], webserver.data_ingestor)
+        webserver.tasks_runner.submit_task(new_task)
 
         # Return associated 
         return jsonify({"job_id": job_id})

@@ -24,4 +24,5 @@ class DataIngestor:
         ]
     
     def get_df_by_question(self, question : str) -> pd.DataFrame:
-        return self.database_df[self.database_df[self.QUESTION] == question]
+        result = self.database_df[self.database_df[self.QUESTION] == question]
+        return result
