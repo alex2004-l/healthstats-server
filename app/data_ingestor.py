@@ -39,7 +39,7 @@ class DataIngestor:
 
     def get_mean_value_for_state(self, question : str, state : str) -> dict:
         df = self.__get_df_by_question_and_state(question, state)
-        result = df["Data_Value"].mean()
+        result = df[self.VALUE].mean()
         return {state : result}
 
     def check_question_best_is_min(self, question : str) -> bool:
