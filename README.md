@@ -5,13 +5,7 @@
 #### Alexandra Florentina Georgiana Lache, 332CD
 ---
 
-Nume:
-Grupă:
-
-# Tema <NR> TODO
-#### Este recomandat să folosiți diacritice. Se poate opta și pentru realizarea în limba engleză. 
-
-Organizare
+Organisation
 -
 1. Explicație pentru soluția aleasă:
 

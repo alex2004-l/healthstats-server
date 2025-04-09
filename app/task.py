@@ -13,6 +13,7 @@ class TaskInterface(ABC):
 
     @abstractmethod
     def func(self):
+        '''Specialized function for each child class that solves the task'''
         pass
 
 class TaskStatesMean(TaskInterface):
@@ -86,6 +87,8 @@ class TaskFactory:
 
     @staticmethod
     def create_task(task_type : str ,id_task : int, question : str, data_ingestor, state : str = None) -> TaskInterface:
+        '''Creates and returns a new object that implements TaskInterface
+        or raises an error if the type is unknown'''
         if task_type in TaskFactory._task_types:
             return TaskFactory._task_types[task_type](id_task, question, data_ingestor, state)
         raise Exception("Unknown task")

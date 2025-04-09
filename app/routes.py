@@ -1,6 +1,5 @@
 import os
 import json
-import logging
 from flask import request, jsonify
 from app import webserver
 from app.task import TaskFactory
@@ -8,8 +7,9 @@ from app.task import TaskFactory
 
 @webserver.route('/api/get_results/<job_id>', methods=['GET'])
 def get_response(job_id):
+    '''Get result for a job'''
     if request.method == 'GET':
-        webserver.logger.info(f"Got request for job with id {job_id}")
+        webserver.logger.info("Got request for job with id %s", job_id)
         # Check if job_id is valid
         id_num = int(job_id)
         if id_num > webserver.job_counter:
@@ -18,28 +18,31 @@ def get_response(job_id):
         if webserver.tasks_runner.get_task_status(id_num) == "done":
             #retrieve the data from the file and return it
             file_path = os.path.join("results", f"job_id_{id_num}.json")
-            with open(file_path, "r") as f:
+            with open(file_path, "r", encoding='UTF-8') as f:
                 result = json.load(f)
             message = {"status": "done", "data" : result}
         else:
             message = {"status": "running"}
-        webserver.logger.info(f"Returned status for job {job_id}")
+        webserver.logger.info("Returned status for job %s", job_id)
         return jsonify(message)
-    else:
-        return jsonify({"error": "Method not allowed"}), 405
+    return jsonify({"error": "Method not allowed"}), 405
 
 
 def add_task_to_threadpool(task_name: str, data, has_state: bool = False):
-    webserver.logger.info(f"Got request : {data}")
+    '''Helper function for POST methods'''
+    webserver.logger.info("Got request : %s", str(data))
 
+    # Not adding tasks in the queue after graceful shutdown
     if not webserver.tasks_runner.get_server_status():
-        webserver.logger.info(f"Request will not be processed because of the shutdown")
+        webserver.logger.info("Request will not be processed because of the shutdown")
         return jsonify({"status": "error", "reason": "shutting down"})
 
+    # Incrementing job_counter
     with webserver.job_lock:
         job_id = webserver.job_counter
         webserver.job_counter += 1
 
+    # Creating task and adding it to queue
     if not has_state:
         new_task = TaskFactory.create_task(
             task_name, job_id, data['question'], webserver.data_ingestor)
@@ -50,12 +53,13 @@ def add_task_to_threadpool(task_name: str, data, has_state: bool = False):
     webserver.tasks_runner.submit_task(new_task)
 
     message = {"job_id": job_id}
-    webserver.logger.info(f"Returned job id {message}")
+    webserver.logger.info("Returned job id %s", str(message))
     return jsonify(message)
 
 
 @webserver.route('/api/states_mean', methods=['POST'])
 def states_mean_request():
+    '''States_mean request function'''
     if request.method == 'POST':
         data = request.json
 
@@ -65,6 +69,7 @@ def states_mean_request():
 
 @webserver.route('/api/state_mean', methods=['POST'])
 def state_mean_request():
+    '''State_mean request function'''
     if request.method == 'POST':
         data = request.json
 
@@ -74,6 +79,7 @@ def state_mean_request():
 
 @webserver.route('/api/best5', methods=['POST'])
 def best5_request():
+    '''Best5 request function'''
     if request.method == 'POST':
         data = request.json
 
@@ -83,6 +89,7 @@ def best5_request():
 
 @webserver.route('/api/worst5', methods=['POST'])
 def worst5_request():
+    '''Worst5 request function'''
     if request.method == 'POST':
         data = request.json
 
@@ -92,6 +99,7 @@ def worst5_request():
 
 @webserver.route('/api/global_mean', methods=['POST'])
 def global_mean_request():
+    '''Global_mean request function'''
     if request.method == 'POST':
         data = request.json
 
@@ -101,6 +109,7 @@ def global_mean_request():
 
 @webserver.route('/api/diff_from_mean', methods=['POST'])
 def diff_from_mean_request():
+    '''Diff_from_mean request function'''
     if request.method == 'POST':
         data = request.json
 
@@ -110,6 +119,7 @@ def diff_from_mean_request():
 
 @webserver.route('/api/state_diff_from_mean', methods=['POST'])
 def state_diff_from_mean_request():
+    '''State_diff_from_mean request function'''
     if request.method == 'POST':
         data = request.json
 
@@ -119,6 +129,7 @@ def state_diff_from_mean_request():
 
 @webserver.route('/api/mean_by_category', methods=['POST'])
 def mean_by_category_request():
+    '''Mean_by_category request function'''
     if request.method == 'POST':
         data = request.json
 
@@ -128,6 +139,7 @@ def mean_by_category_request():
 
 @webserver.route('/api/state_mean_by_category', methods=['POST'])
 def state_mean_by_category_request():
+    '''State_mean_by_category request function'''
     if request.method == 'POST':
         data = request.json
 
@@ -137,28 +149,30 @@ def state_mean_by_category_request():
 
 @webserver.route('/api/graceful_shutdown', methods=['GET'])
 def graceful_shutdown():
+    '''Graceful_shutdown request function'''
     webserver.tasks_runner.graceful_shutdown()
-    webserver.logger.info(f"Got request : {request.json}")
+    webserver.logger.info("Got request : %s", str(request.json))
 
     if webserver.tasks_runner.count_pending_tasks() > 0:
         return jsonify({"status": "running"})
-    else:
-        return jsonify({"status": "done"})
+    return jsonify({"status": "done"})
 
 
 @webserver.route('/api/jobs', methods=['GET'])
 def jobs():
-    webserver.logger.info(f"Got request : {request.json}")
+    '''Jobs request function'''
+    webserver.logger.info("Got request : %s", str(request.json))
     message = {"status": "done", "data" : webserver.tasks_runner.get_tasks_status()}
-    webserver.logger.info(f"Returned jobs list : {message}")
+    webserver.logger.info("Returned jobs list : %s", str(message))
     return jsonify(message)
 
 
 @webserver.route('/api/num_jobs', methods=['GET'])
 def num_jobs():
-    webserver.logger.info(f"Got request : {request.json}")
+    '''Num_jobs request function'''
+    webserver.logger.info("Got request : %s", str(request.json))
     message = {"num_jobs" : webserver.tasks_runner.count_pending_tasks()}
-    webserver.logger.info(f"Returned number of active jobs : {message}")
+    webserver.logger.info("Returned number of active jobs : %s", str(message))
     return jsonify(message)
 
 
