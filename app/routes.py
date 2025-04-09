@@ -27,6 +27,9 @@ def get_response(job_id):
 
 
 def add_task_to_threadpool(task_name: str, data, has_state: bool = False):
+    if not webserver.tasks_runner.get_server_status():
+        return jsonify({"status": "error", "reason": "shutting down"})
+
     with webserver.job_lock:
         job_id = webserver.job_counter
         webserver.job_counter += 1
@@ -46,7 +49,6 @@ def add_task_to_threadpool(task_name: str, data, has_state: bool = False):
 @webserver.route('/api/states_mean', methods=['POST'])
 def states_mean_request():
     if request.method == 'POST':
-        # Get request data
         data = request.json
         print(f"Got request {data}")
 
@@ -57,7 +59,6 @@ def states_mean_request():
 @webserver.route('/api/state_mean', methods=['POST'])
 def state_mean_request():
     if request.method == 'POST':
-        # Get request data
         data = request.json
         print(f"Got request {data}")
 
@@ -75,6 +76,7 @@ def best5_request():
         return add_task_to_threadpool("best5", data)
     return jsonify({"error": "Method not allowed"}), 405
 
+
 @webserver.route('/api/worst5', methods=['POST'])
 def worst5_request():
     if request.method == 'POST':
@@ -84,6 +86,7 @@ def worst5_request():
 
         return add_task_to_threadpool("worst5", data)
     return jsonify({"error": "Method not allowed"}), 405
+
 
 @webserver.route('/api/global_mean', methods=['POST'])
 def global_mean_request():
@@ -128,6 +131,7 @@ def mean_by_category_request():
         return add_task_to_threadpool("mean_by_category", data)
     return jsonify({"error": "Method not allowed"}), 405
 
+
 @webserver.route('/api/state_mean_by_category', methods=['POST'])
 def state_mean_by_category_request():
     if request.method == 'POST':
@@ -137,6 +141,27 @@ def state_mean_by_category_request():
 
         return add_task_to_threadpool("state_mean_by_category", data, True)
     return jsonify({"error": "Method not allowed"}), 405
+
+
+@webserver.route('/api/graceful_shutdown', methods=['GET'])
+def graceful_shutdown():
+    webserver.tasks_runner.graceful_shutdown()
+
+    if webserver.tasks_runner.count_pending_tasks() > 0:
+        return jsonify({"status": "running"})
+    else:
+        return jsonify({"status": "done"})
+
+
+@webserver.route('/api/jobs', methods=['GET'])
+def jobs():
+    return jsonify({"status": "done", "data" : webserver.tasks_runner.get_tasks_status()})
+
+
+@webserver.route('/api/num_jobs', methods=['GET'])
+def num_jobs():
+    return jsonify({"num_jobs" : webserver.tasks_runner.count_pending_tasks()})
+
 
 # You can check localhost in your browser to see what this displays
 @webserver.route('/')
@@ -152,6 +177,7 @@ def index():
 
     msg += paragraphs
     return msg
+
 
 def get_defined_routes():
     routes = []
