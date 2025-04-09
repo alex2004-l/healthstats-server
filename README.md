@@ -9,3 +9,5 @@ TBA
 
 ---
 
+Some useful resources:
+- [about GIL and Python dictionaries](https://stackoverflow.com/questions/1312331/using-a-global-dictionary-with-threads-in-python)

@@ -25,19 +25,19 @@ class DataIngestor:
             'Percent of adults who engage in muscle-strengthening activities on 2 or more days a week',
         ]
 
-    def get_df_by_question(self, question : str) -> pd.DataFrame:
+    def __get_df_by_question(self, question : str) -> pd.DataFrame:
         return self.database_df[self.database_df[self.QUESTION] == question]
 
-    def get_df_by_question_and_state(self, question : str, state : str) -> pd.DataFrame:
-        df_by_question = self.get_df_by_question(question)
+    def __get_df_by_question_and_state(self, question : str, state : str) -> pd.DataFrame:
+        df_by_question = self.__get_df_by_question(question)
         return df_by_question[df_by_question[self.STATE] == state]
     
     def get_mean_values_for_all_states(self, question : str) -> dict:
-        df = self.get_df_by_question(question)
+        df = self.__get_df_by_question(question)
         return df.groupby(self.STATE)[self.VALUE].mean().to_dict()
     
     def get_mean_value_for_state(self, question : str, state : str) -> dict:
-        df = self.get_df_by_question_and_state(question, state)
+        df = self.__get_df_by_question_and_state(question, state)
         result = df["Data_Value"].mean()
         return {state : result}
     
@@ -45,4 +45,8 @@ class DataIngestor:
         return question in self.questions_best_is_min
     
     def check_question_worst_is_min(self, question : str) -> bool:
-        return question in self.questions_best_is_min
+        return question in self.questions_best_is_max
+    
+    def get_global_mean(self, question : str) -> float:
+        df = self.__get_df_by_question(question)
+        return df[self.VALUE].mean()

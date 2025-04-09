@@ -30,18 +30,25 @@ class TaskBest5(TaskInterface):
 
 class TaskWorst5(TaskInterface):
     def func(self):
-        all_states = self.data_ingestor.get_mean_values_for_all_states(self.question)
+        mean_all_states = self.data_ingestor.get_mean_values_for_all_states(self.question)
         is_min = self.data_ingestor.check_question_worst_is_min(self.question)
-        return dict(sorted(all_states.items(), key=lambda item: item[1], reverse=is_min)[:5])
+        return dict(sorted(mean_all_states.items(), key=lambda item: item[1], reverse=not is_min)[:5])
 
 class TaskGlobalMean(TaskInterface):
     def func(self):
-        df = self.data_ingestor.get_df_by_question(self.question)
-        return {"global_mean" : df["Data_Value"].mean()}
+        return {"global_mean" : self.data_ingestor.get_global_mean(self.question)}
 
-class TaskStatesDiffFromMean(TaskInterface):
+class TaskDiffFromMean(TaskInterface):
     def func(self):
-        pass
+        mean_all_states = self.data_ingestor.get_mean_values_for_all_states(self.question)
+        global_mean = self.data_ingestor.get_global_mean(self.question)
+        return {state: global_mean - value for state, value in mean_all_states.items()}
+
+class TaskStateDiffFromMean(TaskInterface):
+    def func(self):
+        mean_state = self.data_ingestor.get_mean_value_for_state(self.question, self.state)
+        global_mean = self.data_ingestor.get_global_mean(self.question)
+        return {self.state : global_mean - mean_state}
 
 class TaskMeanByCategory(TaskInterface):
     def func(self):
@@ -58,7 +65,8 @@ class TaskFactory:
         "best5": TaskBest5,
         "worst5": TaskWorst5,
         "global_mean": TaskGlobalMean,
-        "states_diff_from_mean": TaskStatesDiffFromMean,
+        "diff_from_mean": TaskDiffFromMean,
+        "state_diff_from_mean": TaskStateDiffFromMean,
         "mean_by_category": TaskMeanByCategory,
         "state_mean_by_category": TaskStateMeanByCategory
     }
