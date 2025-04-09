@@ -48,15 +48,17 @@ class TaskStateDiffFromMean(TaskInterface):
     def func(self):
         mean_state = self.data_ingestor.get_mean_value_for_state(self.question, self.state)
         global_mean = self.data_ingestor.get_global_mean(self.question)
-        return {self.state : global_mean - mean_state}
+        return {state: global_mean - value for state, value in mean_state.items()}
 
 class TaskMeanByCategory(TaskInterface):
     def func(self):
-        pass
+        mean_category_all_states = self.data_ingestor.get_mean_stratification(self.question)
+        return {str(t) : value for t, value in mean_category_all_states.items()}
 
 class TaskStateMeanByCategory(TaskInterface):
     def func(self):
-        pass
+        mean_category_state = self.data_ingestor.get_mean_stratification_state(self.question, self.state)
+        return {state : {str(t) : value for t, value in attr.items()} for state, attr in mean_category_state.items()}
 
 class TaskFactory:
     _task_types = {

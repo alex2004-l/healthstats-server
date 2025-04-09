@@ -5,7 +5,9 @@ class DataIngestor:
     QUESTION = "Question"
     STATE = "LocationDesc"
     VALUE = "Data_Value"
-    COLUMNS = [QUESTION, STATE, "Data_Value", "Stratification1", "StratificationCategory1"]
+    STRATIFICATION = "Stratification1"
+    CATEGORY = "StratificationCategory1"
+    COLUMNS = [QUESTION, STATE, VALUE, STRATIFICATION, CATEGORY]
 
     def __init__(self, csv_path: str):
         self.database_df = pd.read_csv(csv_path, usecols=self.COLUMNS)
@@ -32,6 +34,10 @@ class DataIngestor:
         df_by_question = self.__get_df_by_question(question)
         return df_by_question[df_by_question[self.STATE] == state]
     
+    def __get_states(self) -> list:
+        states = self.database_df[self.STATE].unique().tolist()
+        return states
+    
     def get_mean_values_for_all_states(self, question : str) -> dict:
         df = self.__get_df_by_question(question)
         return df.groupby(self.STATE)[self.VALUE].mean().to_dict()
@@ -50,3 +56,15 @@ class DataIngestor:
     def get_global_mean(self, question : str) -> float:
         df = self.__get_df_by_question(question)
         return df[self.VALUE].mean()
+    
+    def __get_mean_stratification_by_state(self, question : str, state : str) -> dict:
+        df = self.__get_df_by_question_and_state(question, state)
+        return df.groupby([self.CATEGORY, self.STRATIFICATION])[self.VALUE].mean().to_dict()
+
+    def get_mean_stratification(self, question : str) -> dict:
+        df = self.__get_df_by_question(question)
+        return df.groupby([self.STATE, self.CATEGORY, self.STRATIFICATION])[self.VALUE].mean().to_dict()
+    
+    def get_mean_stratification_state(self, question : str, state : str) -> dict:
+        print({state : self.__get_mean_stratification_by_state(question, state)})
+        return {state : self.__get_mean_stratification_by_state(question, state)}

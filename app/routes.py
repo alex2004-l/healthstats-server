@@ -180,23 +180,45 @@ def state_diff_from_mean_request():
 
 @webserver.route('/api/mean_by_category', methods=['POST'])
 def mean_by_category_request():
-    # TODO
-    # Get request data
-    # Register job. Don't wait for task to finish
-    # Increment job_id counter
-    # Return associated job_id
+    if request.method == 'POST':
+        # Get request data
+        data = request.json
+        print(f"Got request {data}")
 
-    return jsonify({"status": "NotImplemented"})
+        # to add check for data validity
+
+        with webserver.job_lock:
+            job_id = webserver.job_counter
+            webserver.job_counter += 1
+        
+        new_task = TaskFactory.create_task("mean_by_category", job_id, data['question'], webserver.data_ingestor)
+        webserver.tasks_runner.submit_task(new_task)
+
+        # Return associated 
+        return jsonify({"job_id": job_id})
+    else:
+        return jsonify({"error": "Method not allowed"}), 405
 
 @webserver.route('/api/state_mean_by_category', methods=['POST'])
 def state_mean_by_category_request():
-    # TODO
-    # Get request data
-    # Register job. Don't wait for task to finish
-    # Increment job_id counter
-    # Return associated job_id
+    if request.method == 'POST':
+        # Get request data
+        data = request.json
+        print(f"Got request {data}")
 
-    return jsonify({"status": "NotImplemented"})
+        # to add check for data validity
+
+        with webserver.job_lock:
+            job_id = webserver.job_counter
+            webserver.job_counter += 1
+        
+        new_task = TaskFactory.create_task("state_mean_by_category", job_id, data['question'], webserver.data_ingestor, data['state'])
+        webserver.tasks_runner.submit_task(new_task)
+
+        # Return associated 
+        return jsonify({"job_id": job_id})
+    else:
+        return jsonify({"error": "Method not allowed"}), 405
 
 # You can check localhost in your browser to see what this displays
 @webserver.route('/')
