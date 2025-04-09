@@ -1,6 +1,5 @@
 import os
 import json
-import traceback
 from queue import Queue, Empty
 from threading import Thread, Event, Lock
 from app.task import TaskInterface
