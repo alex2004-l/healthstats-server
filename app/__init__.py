@@ -1,6 +1,6 @@
 import os
-from flask import Flask
 from threading import Lock
+from flask import Flask
 from app.data_ingestor import DataIngestor
 from app.task_runner import ThreadPool
 

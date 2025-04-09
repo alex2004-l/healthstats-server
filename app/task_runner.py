@@ -1,10 +1,10 @@
-from queue import Queue
-from threading import Thread, Event
-from app.task import TaskInterface
-import time
 import os
 import json
 import traceback
+from queue import Queue
+from threading import Thread, Event
+from app.task import TaskInterface
+
 
 class ThreadPool:
     def __init__(self):
@@ -50,11 +50,10 @@ class TaskRunner(Thread):
                 result = self.current_task.func()
                 self.write_file(result)
                 self.threadpool.complete_task(self.current_task.id)
-            except Exception as e:
+            except:
                 traceback.print_exc()
-                pass
 
     def write_file(self, result):
         file_path = os.path.join("results", f"job_id_{self.current_task.id}.json")
-        with open(file_path, "w") as f:
+        with open(file_path, "w", encoding= 'UTF-8') as f:
             json.dump(result, f)
