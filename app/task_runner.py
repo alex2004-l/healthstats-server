@@ -16,24 +16,24 @@ class ThreadPool:
 
         # TODO : add an event for graceful shutdown
         self.shutdown = Event()
-    
+
     def start(self):
         for thread in self.threads:
             thread.start()
-        
+
     def submit_task(self, task : TaskInterface):
         self.running_tasks.put(task)
         self.total_tasks[task.id] = "running"
 
     def get_task(self) -> TaskInterface:
         return self.running_tasks.get()
-    
-    def complete_task(self, id : int):
-        self.total_tasks[id] = "done"
+
+    def complete_task(self, id_task : int):
+        self.total_tasks[id_task] = "done"
         self.running_tasks.task_done()
-    
-    def get_task_status(self, id : int) -> str:
-        return self.total_tasks[id]
+
+    def get_task_status(self, id_task : int) -> str:
+        return self.total_tasks[id_task]
 
 
 class TaskRunner(Thread):
@@ -53,10 +53,8 @@ class TaskRunner(Thread):
             except Exception as e:
                 traceback.print_exc()
                 pass
-    
+
     def write_file(self, result):
         file_path = os.path.join("results", f"job_id_{self.current_task.id}.json")
         with open(file_path, "w") as f:
             json.dump(result, f)
-
-

@@ -15,46 +15,41 @@ class TaskInterface(ABC):
         pass
 
 class TaskStatesMean(TaskInterface):
-
     def func(self):
-        df = self.data_ingestor.get_df_by_question(self.question)
-        result = df.groupby("LocationDesc")["Data_Value"].mean().to_dict()
-        return result
+        return self.data_ingestor.get_mean_values_for_all_states(self.question)
 
 class TaskStateMean(TaskInterface):
     def func(self):
-        pass
-
+        return self.data_ingestor.get_mean_value_for_state(self.question, self.state)
 
 class TaskBest5(TaskInterface):
     def func(self):
-        pass
-
+        all_states = self.data_ingestor.get_mean_values_for_all_states(self.question)
+        is_min = self.data_ingestor.check_question_best_is_min(self.question)
+        return dict(sorted(all_states.items(), key=lambda item: item[1], reverse=not is_min)[:5])
 
 class TaskWorst5(TaskInterface):
     def func(self):
-        pass
-
+        all_states = self.data_ingestor.get_mean_values_for_all_states(self.question)
+        is_min = self.data_ingestor.check_question_worst_is_min(self.question)
+        return dict(sorted(all_states.items(), key=lambda item: item[1], reverse=is_min)[:5])
 
 class TaskGlobalMean(TaskInterface):
     def func(self):
-        pass
-
+        df = self.data_ingestor.get_df_by_question(self.question)
+        return {"global_mean" : df["Data_Value"].mean()}
 
 class TaskStatesDiffFromMean(TaskInterface):
     def func(self):
         pass
 
-
 class TaskMeanByCategory(TaskInterface):
     def func(self):
         pass
 
-
 class TaskStateMeanByCategory(TaskInterface):
     def func(self):
         pass
-
 
 class TaskFactory:
     _task_types = {

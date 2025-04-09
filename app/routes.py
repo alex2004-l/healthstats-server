@@ -1,9 +1,9 @@
+import os
+import json
 from app import webserver
 from flask import request, jsonify
 from app.task import TaskFactory
 
-import os
-import json
 
 @webserver.route('/api/get_results/<job_id>', methods=['GET'])
 def get_response(job_id):
@@ -50,42 +50,88 @@ def states_mean_request():
 
 @webserver.route('/api/state_mean', methods=['POST'])
 def state_mean_request():
-    # TODO
-    # Get request data
-    # Register job. Don't wait for task to finish
-    # Increment job_id counter
-    # Return associated job_id
+    if request.method == 'POST':
+        # Get request data
+        data = request.json
+        print(f"Got request {data}")
 
-    return jsonify({"status": "NotImplemented"})
+        # to add check for data validity
+
+        with webserver.job_lock:
+            job_id = webserver.job_counter
+            webserver.job_counter += 1
+        
+        new_task = TaskFactory.create_task("state_mean", job_id, data['question'], webserver.data_ingestor, data['state'])
+        webserver.tasks_runner.submit_task(new_task)
+
+        # Return associated 
+        return jsonify({"job_id": job_id})
+    else:
+        return jsonify({"error": "Method not allowed"}), 405
 
 
 @webserver.route('/api/best5', methods=['POST'])
 def best5_request():
-    # TODO
-    # Get request data
-    # Register job. Don't wait for task to finish
-    # Increment job_id counter
-    # Return associated job_id
+    if request.method == 'POST':
+        # Get request data
+        data = request.json
+        print(f"Got request {data}")
 
-    return jsonify({"status": "NotImplemented"})
+        # to add check for data validity
+
+        with webserver.job_lock:
+            job_id = webserver.job_counter
+            webserver.job_counter += 1
+        
+        new_task = TaskFactory.create_task("best5", job_id, data['question'], webserver.data_ingestor)
+        webserver.tasks_runner.submit_task(new_task)
+
+        # Return associated 
+        return jsonify({"job_id": job_id})
+    else:
+        return jsonify({"error": "Method not allowed"}), 405
 
 @webserver.route('/api/worst5', methods=['POST'])
 def worst5_request():
-    # TODO
-    # Get request data
-    # Register job. Don't wait for task to finish
-    # Increment job_id counter
-    # Return associated job_id
+    if request.method == 'POST':
+        # Get request data
+        data = request.json
+        print(f"Got request {data}")
 
-    return jsonify({"status": "NotImplemented"})
+        # to add check for data validity
+
+        with webserver.job_lock:
+            job_id = webserver.job_counter
+            webserver.job_counter += 1
+        
+        new_task = TaskFactory.create_task("worst5", job_id, data['question'], webserver.data_ingestor)
+        webserver.tasks_runner.submit_task(new_task)
+
+        # Return associated 
+        return jsonify({"job_id": job_id})
+    else:
+        return jsonify({"error": "Method not allowed"}), 405
 
 @webserver.route('/api/global_mean', methods=['POST'])
 def global_mean_request():
-    # TODO
-    # Get request data
-    # Register job. Don't wait for task to finish
-    # Increment job_id counter
-    # Return associated job_id
+    if request.method == 'POST':
+        # Get request data
+        data = request.json
+        print(f"Got request {data}")
+
+        # to add check for data validity
+
+        with webserver.job_lock:
+            job_id = webserver.job_counter
+            webserver.job_counter += 1
+        
+        new_task = TaskFactory.create_task("global_mean", job_id, data['question'], webserver.data_ingestor)
+        webserver.tasks_runner.submit_task(new_task)
+
+        # Return associated 
+        return jsonify({"job_id": job_id})
+    else:
+        return jsonify({"error": "Method not allowed"}), 405
 
     return jsonify({"status": "NotImplemented"})
 
