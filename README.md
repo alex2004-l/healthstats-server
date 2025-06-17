@@ -1,8 +1,8 @@
-## Homework 1 ASC - Les Stats Sportif
+## HealthStats Server
 
 ---
 
-#### Alexandra Florentina Georgiana Lache, 332CD
+#### Alexandra Florentina Georgiana Lache, 332
 ---
 
 Implementation
