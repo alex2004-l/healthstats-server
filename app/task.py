@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from app.data_ingestor import DataIngestor
 
+
 class TaskInterface(ABC):
     '''Interface for tasks objects'''
     def __init__(self, id_task : int, question: str, data_ingestor : DataIngestor, state: str = None):

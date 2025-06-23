@@ -1,0 +1,16 @@
+,Question,LocationDesc,Data_Value,StratificationCategory1,Stratification1
+1,Percent of adults aged 18 years and older who have obesity,Ohio,29.4,Income,"$75,000 or greater"
+2,Percent of adults aged 18 years and older who have obesity,Washington,27.7,Gender,Female
+3,Percent of adults aged 18 years and older who have obesity,New Mexico,30.5,Income,"less than $25,000"
+4,Percent of adults aged 18 years and older who have obesity,Indiana,44.1,Race/Ethnicity,Non-Hispanic Black
+5,Percent of adults aged 18 years and older who have obesity,Massachusetts,29.3,Income,"$50,000 - $74,999"
+6,Percent of adults aged 18 years and older who have obesity,Arkansas,27.8,Income,"$25,000 - $34,999"
+7,Percent of adults aged 18 years and older who have obesity,Louisiana,27.5,Education,College graduate
+8,Percent of adults aged 18 years and older who have obesity,Louisiana,32.5,Education,Less than high school
+9,Percent of adults who engage in muscle-strengthening activities on 2 or more days a week,Vermont,37.9,Education,Less than high school
+10,Percent of adults who engage in muscle-strengthening activities on 2 or more days a week,Connecticut,29.3,Income,"$25,000 - $34,999"
+11,Percent of adults who engage in muscle-strengthening activities on 2 or more days a week,Louisiana,23.9,Education,Less than high school
+12,Percent of adults who engage in muscle-strengthening activities on 2 or more days a week,Oregon,30.9,Race/Ethnicity,Non-Hispanic Black
+13,Percent of adults who engage in muscle-strengthening activities on 2 or more days a week,Tennessee,30.9,Race/Ethnicity,American Indian/Alaska Native
+14,Percent of adults who engage in muscle-strengthening activities on 2 or more days a week,Michigan,33.1,Gender,Male
+15,Percent of adults who engage in muscle-strengthening activities on 2 or more days a week,Missouri,20.5,Gender,Female

@@ -13,9 +13,11 @@ def get_response(job_id):
     # Check if job_id is valid
     id_num = int(job_id)
     if id_num > webserver.job_counter:
-        return jsonify({"status": "error", "reason" : "Invalid job_id"})
+        return jsonify({"status": "error", "reason" : "Invalid job_id"}), 404
+    
+    task_status = webserver.tasks_runner.get_task_status(id_num)
 
-    if webserver.tasks_runner.get_task_status(id_num) == "done":
+    if task_status == "done":
         #retrieve the data from the file and return it
         file_path = os.path.join("results", f"job_id_{id_num}.json")
         with open(file_path, "r", encoding='UTF-8') as f:
@@ -23,6 +25,7 @@ def get_response(job_id):
         message = {"status": "done", "data" : result}
     else:
         message = {"status": "running"}
+
     webserver.logger.info("Returned status for job %s", job_id)
     return jsonify(message)
 
@@ -61,7 +64,6 @@ def states_mean_request():
     '''States_mean request function'''
     data = request.json
     return submit_task_to_threadpool("states_mean", data)
-    return jsonify({"error": "Method not allowed"}), 405
 
 
 @webserver.route('/api/state_mean', methods=['POST'])

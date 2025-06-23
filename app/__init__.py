@@ -1,7 +1,7 @@
+import os
+import time
 import logging
 from logging.handlers import RotatingFileHandler
-import time
-import os
 from threading import Lock
 from flask import Flask
 from app.data_ingestor import DataIngestor

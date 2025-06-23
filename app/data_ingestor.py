@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 class DataIngestor:
     QUESTION = "Question"
     STATE = "LocationDesc"
