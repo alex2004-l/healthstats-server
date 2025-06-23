@@ -1,7 +1,14 @@
+'''Data Ingestor Module
+This module is responsible for ingesting and processing data from a CSV file.
+It provides methods to filter and calculate statistics based on various questions.'''
 import pandas as pd
 
 
 class DataIngestor:
+    '''DataIngestor class for reading and processing health-related data from a CSV file.
+    It allows filtering by question and state, calculating mean values, and checking if a question is best or worst.'''
+
+    # Constants for column names in the CSV file
     QUESTION = "Question"
     STATE = "LocationDesc"
     VALUE = "Data_Value"

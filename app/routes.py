@@ -1,3 +1,4 @@
+'''Routes for the webserver'''
 import os
 import json
 from flask import request, jsonify
@@ -14,7 +15,7 @@ def get_response(job_id):
     id_num = int(job_id)
     if id_num > webserver.job_counter:
         return jsonify({"status": "error", "reason" : "Invalid job_id"}), 404
-    
+
     task_status = webserver.tasks_runner.get_task_status(id_num)
 
     if task_status == "done":
@@ -155,19 +156,19 @@ def num_jobs():
 @webserver.route('/')
 @webserver.route('/index')
 def index():
+    '''Index route that displays all defined routes'''
     routes = get_defined_routes()
     msg = "Hello, World!\n Interact with the webserver using one of the defined routes:\n"
 
     # Display each route as a separate HTML <p> tag
-    paragraphs = ""
-    for route in routes:
-        paragraphs += f"<p>{route}</p>"
+    paragraphs = "".join(f"<p>{route}</p>" for route in routes)
 
     msg += paragraphs
     return msg
 
 
 def get_defined_routes():
+    '''Function to get all defined routes in the webserver'''
     routes = []
     for rule in webserver.url_map.iter_rules():
         methods = ', '.join(rule.methods)

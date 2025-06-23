@@ -1,3 +1,5 @@
+'''This module defines the TaskInterface and its concrete implementations for various tasks.
+It uses the Factory pattern to create task instances based on the task type.'''
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from app.data_ingestor import DataIngestor
