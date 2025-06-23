@@ -1,51 +1,72 @@
-## HealthStats Server
+##### Alexandra Florentina Georgiana Lache, 332CD
+
+## __HealthStats Server__
 
 ---
 
-#### Alexandra Florentina Georgiana Lache, 332
+### __Project description__
+
+A *multithreaded Python **Flask** web server* for processing health statistics. Tasks
+ are handled *asynchronously* through a **custom threadpool** and served via **REST
+  API routes**. Data is processed with **pandas** and returned in *JSON format*.
+
 ---
 
-Implementation
+### Implementation
+
+- Every request to the server is turned into a job, assigned a unique job_id, and added
+ to a job queue processed by a custom ThreadPool.
+
+- ***DataIngestor***: Handles all logic related to reading and processing CSVs using
+_pandas_. It encapsulates data access and helps convert results into dictionaries 
+for easy JSON serialization.
+
+- *Factory Design Pattern*: A TaskFactory provides a unified interface to handle
+ different tasks in a uniform and maintainable way.
+
+- *ThreadPool*: Uses an internal `Queue` to manage pending jobs, and also tracks
+ job statuses in a dictionary. Uses an Event flag for managin graceful shutdown.
+
 ---
 
-Some importants aspects for the design of my solution:
-- Apart from the original files, I also created a separate file called `task.py` for my implementation of task objects.
-- _TaskFactory_ : For modeling the jobs I created a task interface and implemented a class for each job using Factory desing. I chose this pattern for ensuring a uniform interface to all the tasks and for making it easy to maintain. Basically, when a thread runs a task from the queue, it will call task.func(), and each task's implementation is handled in the task.py file
-- _DataFrames and DataIngestor_ : Initially, my aproach was for the tasks to work directly on dataframes. Later on, I thought it would be better design-wise to keep the pandas logic only in DataIngestor. So I added helper methods for processing the data and converting the results in dict() for easier conversion to the json format
-- _Less duplicate code in routes.py_ : As I wrote the functions for the routes, my code from routes.py was becoming really repetitive, so I added a helper method for POST request to reduce code length and improve maintanability.
-- _Threadpool_ : My threadpool has a event for shutdown management, a queue for yet unprocessed tasks and a dictionary for retaining the status of all the jobs.
-- _TaskRunner_ : It hold a reference to its parent threadpool and to the task it is currently processing. It runs in a loop until the threadpool is shutdown and there are no more tasks to process. It is also responsible for writing the outputs of a task.
+### __Endpoints__
+
+| Endpoint                      | Description                                                                             |
+| ----------------------------- | --------------------------------------------------------------------------------------- |
+| `/api/states_mean`            | Returns mean `Data_Value` for each state, sorted ascending.                             |
+| `/api/state_mean`             | Returns mean `Data_Value` for a given state.                                            |
+| `/api/best5`                  | Returns the top 5 states with the lowest mean `Data_Value`.                             |
+| `/api/worst5`                 | Returns the bottom 5 states with the highest mean `Data_Value`.                         |
+| `/api/global_mean`            | Returns the overall mean `Data_Value`.                                                  |
+| `/api/diff_from_mean`         | Returns the difference between each state’s mean and the global mean.                   |
+| `/api/state_diff_from_mean`   | Returns the difference between a given state’s mean and the global mean.                |
+| `/api/mean_by_category`       | Returns the average `Data_Value` per category segment (Stratification1) for each state. |
+| `/api/state_mean_by_category` | Same as above but limited to a specific state.                                          |
+| `/api/graceful_shutdown`    | Initiates a clean shutdown: no new requests accepted, ongoing jobs finish. Returns `"running"` or `"done"`.|
+| `/api/jobs`                 | Returns status of all jobs: `"running"` or `"done"`.                                                        |
+| `/api/num_jobs`             | Returns the number of remaining jobs in the queue.                                                          |
+| `/api/get_results/<job_id>` | Fetches result of a completed job. Handles invalid or incomplete jobs with appropriate error messages.      |
 
 
-Challenges
 ---
-- Using Pandas : As this was my first time using Pandas, it was an interesting experience. While I initially faced some challenges with dataframe manipulation, obtaining some malformed DataFrames, especially with the groupby function returning different objects, I eventually managed to get a hang of the process.
-- Using Queue : Working with queue module was interesting. Discovering the timeout attribute and using it for permitting all the threads to finish after the threadpool shuts down might not be the most graceful method to handle this (I thought about using a get_no_wait() instead).
-- The working of the logger : Discovering a method to use the logger created, and not the default logger of Flask was a little bit challenging.
 
-What to improve
+### __Unit Testing__
+
+The project includes a comprehensive suite of unit tests using Python’s 
+built-in `unittest` framework.
+
+All major data processing tasks are tested independently. For floating-point comparisons,
+ we use assertAlmostEqual with a small delta to ensure tolerance to rounding errors.
+
+To run the tests:
+
+```bash
+python3 -m unittest -v unittests/test_webserver.py
+```
 ---
 
-- Maybe thinking more thoughtfully the exceptions that might arise.
+### __Logging__
 
-What I didn't do
----
-- I didn't implement extra features.
-- I didn't implement the unittesting.
-
-
-Resources
----
-- [about GIL and Python dictionaries](https://stackoverflow.com/questions/1312331/using-a-global-dictionary-with-threads-in-python) => I wasn't sure if dict() needed lock due to the GIL (the only link I saved)
-- https://docs.python.org/3/library/
-- https://stackoverflow.com
-- https://www.w3schools.com/ => for syntax
-- probably more, but I forgot to log them all
-
-Git
--
-1. https://github.com/alex2004-l/les-stats-sportif 
-
-
+The application uses the standard Python `logging` module to track server activity, errors, and request flow.
 
 ---
